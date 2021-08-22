@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using static scheduled_ecs_dotnet.BloggingContext;
 
 namespace scheduled_ecs_dotnet
 {
@@ -33,6 +34,18 @@ namespace scheduled_ecs_dotnet
                 {
                     Console.WriteLine($"BlogId: {blog.BlogId}, BlogUrl: {blog.Url}");
                 }
+
+                // Raw Query
+                var rawBlogs = context.RawBlogs.FromSqlRaw("SELECT BlogId, Url FROM blogs");
+                foreach (var blog in rawBlogs)
+                {
+                    Console.WriteLine($"BlogId: {blog.BlogId}, Url: {blog.Url}");
+                }
+
+                // Delete
+                Console.WriteLine("Delete blogs ---");
+                context.Blogs.RemoveRange(await context.Blogs.ToListAsync());
+                await context.SaveChangesAsync();
             }
         }
     }

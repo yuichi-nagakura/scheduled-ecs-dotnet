@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace scheduled_ecs_dotnet
@@ -8,6 +9,7 @@ namespace scheduled_ecs_dotnet
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<RawBlog> RawBlogs { get; set; }
 
         public string DbPath { get; set; }
 
@@ -20,22 +22,35 @@ namespace scheduled_ecs_dotnet
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite($"Data Source={DbPath}");
-    }
 
-    public class Blog
-    {
-        public int BlogId { get; set; }
-        public string Url { get; set; }
-        public List<Post> Posts = new List<Post>();
-    }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            // base.OnModelCreating(builder);
+            builder.Entity<RawBlog>()
+                      .HasKey(x => new { x.BlogId });
+        }
 
-    public class Post
-    {
-        public int PostId { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+        public class Blog
+        {
+            public int BlogId { get; set; }
+            public string Url { get; set; }
+            public List<Post> Posts = new List<Post>();
+        }
 
-        public int BlogId { get; set; }
-        public Blog Blog { get; set; }
+        public class Post
+        {
+            public int PostId { get; set; }
+            public string Title { get; set; }
+            public string Content { get; set; }
+
+            public int BlogId { get; set; }
+            public Blog Blog { get; set; }
+        }
+
+        public class RawBlog
+        {
+            public int BlogId { get; set; }
+            public string Url { get; set; }
+        }
     }
 }
